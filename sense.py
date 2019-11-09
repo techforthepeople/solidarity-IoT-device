@@ -3,42 +3,88 @@ import json
 import time
 import requests
 import os
+import sqlite3
+from sqlite3 import Error
 
 sense = SenseHat()
 
-sleep = lambda x: time.sleep(x / 1000.0)
+db = 'webapp/sensor.db'
 
-high_temp_threshold = 40
-low_temp_threshold = 0
 
-api_url = 'https://navi-backend.onrender.com/api/log/2'
+def sleep(x):
+    return time.sleep(x / 1000.0)
 
-while True:
+# connect to database
+def create_connection(db):
+    con = None
+    try:
+        con = sqlite3.connect(db)
+    except Error as e:
+        print(e)
 
-    temp = sense.get_temperature()
-    humidity = sense.get_humidity()
-    pressure = sense.get_pressure()
+    return con
 
-    sensor_data = {
-        "temperature": str(round(temp)),
-        "humidity": str(round(humidity)),
-        "pressure": str(round(pressure))
+
+# get settings from database
+def get_settings():
+    con = create_connection(db)
+    cur = con.cursor()
+    cur.execute('SELECT * FROM settings')
+    results = cur.fetchone()
+    settings = None
+    if results is not None:
+        settings = {
+            'userid': results[0],
+            'low_temp': results[1],
+            'high_temp': results[2],
+            'low_humidity': results[3],
+            'high_humidity': results[4],
+            'low_pressure': results[5],
+            'high_pressure': results[6],
+            'polling_frequency': results[7]
+        }
+    return settings
+
+
+def safe():
+    sense.show_message("OK", text_colour=[
+                       255, 255, 255], back_colour=[0, 255, 0])
+
+
+def unsafe():
+    os.system('omxplayer warning.mp3')
+    sense.show_message("UNSAFE", text_colour=[
+                       255, 255, 255], back_colour=[255, 0, 0])
+
+
+def main():
+    settings = get_settings()
+    print("Settings: ", settings)
+
+    while True:
+
+        temp = sense.get_temperature()
+        humidity = sense.get_humidity()
+        pressure = sense.get_pressure()
+
+        data = {
+            "timestamp": time.time(),
+            "temp": round(temp),
+            "humidity": round(humidity),
+            "pressure": round(pressure)
         }
 
-    api_post_data = json.dumps(sensor_data)
+        # if sensor thresholds are set, check if exceeded
+        if settings is not None:
+            if(temp > settings['high_temp'] or temp < settings['low_temp']):
+                unsafe()
+            else:
+                safe()
 
-    response = requests.post(api_url, json=api_post_data)
-    
-    print("Data to POST to API: ", api_post_data)
+        print(data)
 
-    print("API response: ", response)
+        sleep(2000)
 
-    temp = 50
-    
-    if(temp > high_temp_threshold or temp < low_temp_threshold):
-        os.system('omxplayer warning.mp3')
-        sense.show_message("HIGH", text_colour=[255,255,255], back_colour=[255,0,0])
-    else:
-        sense.show_message("OK", text_colour=[255,255,255], back_colour=[0,255,0])
 
-    sleep(2000)
+if __name__ == '__main__':
+    main()

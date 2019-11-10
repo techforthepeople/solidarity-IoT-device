@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 from sqlite3 import Error
+from marshmallow import Schema, fields
 
 app = Flask(__name__)
 
@@ -14,7 +15,6 @@ def create_connection(db):
         print(e)
 
     return con
-
 
 @app.route('/')
 def index():
@@ -39,17 +39,33 @@ def index():
     return render_template('index.html', settings = current_settings)
 
 
-@app.route('/update_settings', methods=['POST', 'GET'])
+class UpdateSettingsInputSchema(Schema):
+    userid = fields.Str(required=False)
+    high_temp = fields.Int(required=True)
+    low_temp = fields.Int(required=True)
+    high_humidity = fields.Int(required=True)
+    low_humidity = fields.Int(required=True)
+    high_pressure = fields.Int(required=True)
+    low_pressure = fields.Int(required=True)
+    polling_frequency = fields.Int(required=True)
+
+update_settings_schema = UpdateSettingsInputSchema()
+
+@app.route('/update_settings', methods=['POST'])
 def update_settings():
-    if request.method == 'GET':
-        userid = request.values.get('userid')
-        high_temp = int(request.values.get('high_temp'))
-        low_temp = int(request.values.get('low_temp'))
-        high_humidity = int(request.values.get('high_humidity'))
-        low_humidity = int(request.values.get('low_humidity'))
-        high_pressure = int(request.values.get('high_pressure'))
-        low_pressure = int(request.values.get('low_pressure'))
-        polling_frequency = int(request.values.get('polling_frequency'))
+    if request.method == 'POST':
+        errors = update_settings_schema.validate(request.form)
+        if errors:
+            return render_template('results.html', msg=str(errors))
+
+        userid = request.form.get('userid')
+        high_temp = request.form.get('high_temp')
+        low_temp = request.form.get('low_temp')
+        high_humidity = request.form.get('high_humidity')
+        low_humidity = request.form.get('low_humidity')
+        high_pressure = request.form.get('high_pressure')
+        low_pressure = request.form.get('low_pressure')
+        polling_frequency = request.form.get('polling_frequency')
 
         con = create_connection(db)
 
@@ -64,7 +80,7 @@ def update_settings():
                           high_humidity, low_pressure, high_pressure, polling_frequency))
         con.commit()
 
-        return redirect('/')
+        return render_template('results.html', msg='Settings were updated successfully.')
 
 
 if __name__ == '__main__':

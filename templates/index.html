@@ -7,80 +7,80 @@
 
 <body>
     <div class="container">
-        <h1 class="title">Sensor Configuration</h1>
+        <div class="section">
+            <h1 class="title">Sensor Configuration</h1>
+            <form action="/update_settings" method="post">
+                <h2 class="subtitle">Account</h2>
+                <div class="field">
+                    <label class="label">User ID</label>
+                    <div class="control">
+                        <input class="input" type="text" name="userid" value="{{ settings['userid'] }}"
+                            placeholder="User ID">
+                    </div>
+                </div>
 
-        {% if msg is defined %}
-        <div class="notification">
-            <button class="delete"></button>
-            {{ msg }}
+                <h2 class="subtitle">Temperature</h2>
+                <div class="field">
+                    <label class="label">High</label>
+                    <div class="control">
+                        <input class="input" type="text" name="high_temp" value="{{ settings['high_temp'] }}"
+                            placeholder="High Temp">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Low</label>
+                    <div class="control">
+                        <input class="input" type="text" name="low_temp" value="{{ settings['low_temp'] }}"
+                            placeholder="Low Temp">
+                    </div>
+                </div>
+
+                <h2 class="subtitle">Humidity</h2>
+                <div class="field">
+                    <label class="label">High</label>
+                    <div class="control">
+                        <input class="input" type="text" name="high_humidity" value="{{ settings['high_humidity'] }}"
+                            placeholder="High Humidity">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Low</label>
+                    <div class="control">
+                        <input class="input" type="text" name="low_humidity" value="{{ settings['low_humidity'] }}"
+                            placeholder="Low Humidity">
+                    </div>
+                </div>
+
+                <h2 class="subtitle">Pressure</h2>
+                <div class="field">
+                    <label class="label">High</label>
+                    <div class="control">
+                        <input class="input" type="text" name="high_pressure" value="{{ settings['high_pressure'] }}"
+                            placeholder="High Pressure">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Low</label>
+                    <div class="control">
+                        <input class="input" type="text" name="low_pressure" value="{{ settings['low_pressure'] }}"
+                            placeholder="Low Pressure">
+                    </div>
+                </div>
+
+                <h2 class="subtitle">Polling</h2>
+                <div class="field">
+                    <label class="label">Frequency</label>
+                    <div class="control">
+                        <input class="input" type="text" name="polling_frequency"
+                            value="{{ settings['polling_frequency'] }}" placeholder="Seconds">
+                    </div>
+                </div>
+
+                <div class="control">
+                    <input class="button" type="submit" value="Update Settings">
+                </div>
+            </form>
         </div>
-        {% endif %}
-
-        <form action="/update_settings" method="get">
-            <h2 class="subtitle">Account</h2>
-            <div class="field">
-                <label class="label">User ID</label>
-                <div class="control">
-
-                    <input class="input" type="text" name="userid" value="{{ settings['userid'] }}" placeholder="User ID">
-                </div>
-            </div>
-
-            <h2 class="subtitle">Temperature</h2>
-            <div class="field">
-                <label class="label">High</label>
-                <div class="control">
-                    <input class="input" type="text" name="high_temp" value="{{ settings['high_temp'] }}" placeholder="High Temp">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">Low</label>
-                <div class="control">
-                    <input class="input" type="text" name="low_temp" value="{{ settings['low_temp'] }}" placeholder="Low Temp">
-                </div>
-            </div>
-
-            <h2 class="subtitle">Humidity</h2>
-            <div class="field">
-                <label class="label">High</label>
-                <div class="control">
-                    <input class="input" type="text" name="high_humidity" value="{{ settings['high_humidity'] }}" placeholder="High Humidity">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">Low</label>
-                <div class="control">
-                    <input class="input" type="text" name="low_humidity" value="{{ settings['low_humidity'] }}" placeholder="Low Humidity">
-                </div>
-            </div>
-
-            <h2 class="subtitle">Pressure</h2>
-            <div class="field">
-                <label class="label">High</label>
-                <div class="control">
-                    <input class="input" type="text" name="high_pressure" value="{{ settings['high_pressure'] }}" placeholder="High Pressure">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">Low</label>
-                <div class="control">
-                    <input class="input" type="text" name="low_pressure" value="{{ settings['low_pressure'] }}" placeholder="Low Pressure">
-                </div>
-            </div>
-
-            <h2 class="subtitle">Polling</h2>
-            <div class="field">
-                <label class="label">Frequency</label>
-                <div class="control">
-                    <input class="input" type="text" name="polling_frequency" value="{{ settings['polling_frequency'] }}" placeholder="Seconds">
-                </div>
-            </div>
-
-            <div class="control">
-                <input class="button" type="submit" value="Update Settings">
-            </div>
-
-        </form>
     </div>
 </body>
 

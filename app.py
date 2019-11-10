@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, flash, render_template, request, redirect, session, url_for
+import uuid
 import sqlite3
 from sqlite3 import Error
 from marshmallow import Schema, fields
 
 app = Flask(__name__)
+
+app.secret_key = '\xde\xb5W\xee{\x8b\xed\xb4\xf2\x91\xcdP\xdfM\xeb02\xd4\xc5\x90mh\xad*' #for dev only
 
 db = 'sensor.db'
 
@@ -18,6 +21,8 @@ def create_connection(db):
 
 @app.route('/')
 def index():
+
+    # fetch current settings from db
     con = create_connection(db)
     cur = con.cursor()
     cur.execute('SELECT * FROM settings')
@@ -36,11 +41,13 @@ def index():
             'polling_frequency': results[7]
         }
 
+    # render configuration page with current settings
     return render_template('index.html', settings = current_settings)
 
 
+# set validation rules for settings
 class UpdateSettingsInputSchema(Schema):
-    userid = fields.Str(required=False)
+    userid = fields.Str(required=True)
     high_temp = fields.Int(required=True)
     low_temp = fields.Int(required=True)
     high_humidity = fields.Int(required=True)
@@ -49,15 +56,19 @@ class UpdateSettingsInputSchema(Schema):
     low_pressure = fields.Int(required=True)
     polling_frequency = fields.Int(required=True)
 
-update_settings_schema = UpdateSettingsInputSchema()
-
 @app.route('/update_settings', methods=['POST'])
 def update_settings():
+
     if request.method == 'POST':
+
+        # check for validation errors
+        update_settings_schema = UpdateSettingsInputSchema()
         errors = update_settings_schema.validate(request.form)
         if errors:
-            return render_template('results.html', msg=str(errors))
-
+            flash(errors)
+            return redirect(url_for('index'))
+        
+        # get setting values from form data
         userid = request.form.get('userid')
         high_temp = request.form.get('high_temp')
         low_temp = request.form.get('low_temp')
@@ -67,20 +78,20 @@ def update_settings():
         low_pressure = request.form.get('low_pressure')
         polling_frequency = request.form.get('polling_frequency')
 
+        # clear existing settings in db
         con = create_connection(db)
-
-        # clear existing settings
         cur = con.cursor()
         cur.execute('DELETE from settings')
         con.commit()
 
-        # insert the updated settings
+        # insert the updated settings into db
         sql = 'INSERT INTO settings (userid,low_temp,high_temp,low_humidity,high_humidity,low_pressure,high_pressure,polling_frequency) VALUES (?,?,?,?,?,?,?,?)'
         cur.execute(sql, (userid, low_temp, high_temp, low_humidity,
                           high_humidity, low_pressure, high_pressure, polling_frequency))
         con.commit()
 
-        return render_template('results.html', msg='Settings were updated successfully.')
+        flash('Updated settings.')
+        return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

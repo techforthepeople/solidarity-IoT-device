@@ -3,6 +3,7 @@
 import sqlite3
 from sqlite3 import Error
 
+db = 'sensor.db'
 
 def open_database(db):
     con = None
@@ -22,8 +23,6 @@ def create_table(con, sql):
         print(e)
 
 def main():
-
-    db = 'sensor.db'
 
     # create settings table
     create_settings_sql = (' CREATE TABLE IF NOT EXISTS settings ('

@@ -4,7 +4,7 @@ from sqlite3 import Error
 
 app = Flask(__name__)
 
-db = "sensor.db"
+db = 'sensor.db'
 
 def create_connection(db):
     con = None
@@ -55,11 +55,11 @@ def update_settings():
 
         # clear existing settings
         cur = con.cursor()
-        cur.execute("DELETE from settings")
+        cur.execute('DELETE from settings')
         con.commit()
 
         # insert the updated settings
-        sql = "INSERT INTO settings (userid,low_temp,high_temp,low_humidity,high_humidity,low_pressure,high_pressure,polling_frequency) VALUES (?,?,?,?,?,?,?,?)"
+        sql = 'INSERT INTO settings (userid,low_temp,high_temp,low_humidity,high_humidity,low_pressure,high_pressure,polling_frequency) VALUES (?,?,?,?,?,?,?,?)'
         cur.execute(sql, (userid, low_temp, high_temp, low_humidity,
                           high_humidity, low_pressure, high_pressure, polling_frequency))
         con.commit()

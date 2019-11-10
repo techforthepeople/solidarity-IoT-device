@@ -1,14 +1,18 @@
 from sense_hat import SenseHat
 import json
 import time
+from datetime import datetime as dt
 import requests
 import os
 import sqlite3
 from sqlite3 import Error
+import requests
 
 sense = SenseHat()
 
+# config
 db = 'sensor.db'
+api_url = 'api_url_goes_here'
 
 def sleep(x):
     return time.sleep(x / 1000.0)
@@ -56,35 +60,43 @@ def unsafe():
 
 def main():
     settings = get_settings()
-    print('Settings: ', settings)
 
-    while True:
+    if settings is not None:
+        print('Settings: ', settings)
 
-        temp = sense.get_temperature()
-        humidity = sense.get_humidity()
-        pressure = sense.get_pressure()
+        while True:
 
-        data = {
-            'timestamp': time.time(),
-            'temp': temp,
-            'humidity': humidity,
-            'pressure': pressure
-        }
+            temp = sense.get_temperature()
+            humidity = sense.get_humidity()
+            pressure = sense.get_pressure()
 
-        if settings is not None:
+            # format and send data to backend
+            data = {
+                'authId': settings['userid'],
+                'timeLogged': dt.now(),
+                'temp': temp,
+                'humidity': humidity,
+                'pressure': pressure
+            }
+
+            try:
+                r = requests.post(api_url, data = data)
+                print(r.text)
+            except requests.exceptions.RequestException as e:
+                print(e)
+
+            # check if any alerts should be triggered
             if(temp > settings['high_temp'] or temp < settings['low_temp']
                     or humidity > settings['high_humidity'] or humidity < settings['low_humidity']
                     or pressure > settings['high_pressure'] or pressure < settings['low_pressure']):
                 unsafe()
             else:
                 safe()
+
+            sleep(2000)
+
         else:
             print('Unable to retrieve alert settings.')
-
-        print(data)
-
-        sleep(2000)
-
 
 if __name__ == '__main__':
     main()

@@ -10,7 +10,6 @@ sense = SenseHat()
 
 db = 'webapp/sensor.db'
 
-
 def sleep(x):
     return time.sleep(x / 1000.0)
 
@@ -47,19 +46,17 @@ def get_settings():
 
 
 def safe():
-    sense.show_message("OK", text_colour=[
-                       255, 255, 255], back_colour=[0, 255, 0])
+    sense.show_message('OK', text_colour=[255, 255, 255], back_colour=[0, 255, 0])
 
 
 def unsafe():
     os.system('omxplayer warning.mp3')
-    sense.show_message("UNSAFE", text_colour=[
-                       255, 255, 255], back_colour=[255, 0, 0])
+    sense.show_message('UNSAFE', text_colour=[255, 255, 255], back_colour=[255, 0, 0])
 
 
 def main():
     settings = get_settings()
-    print("Settings: ", settings)
+    print('Settings: ', settings)
 
     while True:
 
@@ -68,18 +65,21 @@ def main():
         pressure = sense.get_pressure()
 
         data = {
-            "timestamp": time.time(),
-            "temp": round(temp),
-            "humidity": round(humidity),
-            "pressure": round(pressure)
+            'timestamp': time.time(),
+            'temp': temp,
+            'humidity': humidity,
+            'pressure': pressure
         }
 
-        # if sensor thresholds are set, check if exceeded
         if settings is not None:
-            if(temp > settings['high_temp'] or temp < settings['low_temp']):
+            if(temp > settings['high_temp'] or temp < settings['low_temp']
+                    or humidity > settings['high_humidity'] or humidity < settings['low_humidity']
+                    or pressure > settings['high_pressure'] or pressure < settings['low_pressure']):
                 unsafe()
             else:
                 safe()
+        else:
+            print('Unable to retrieve alert settings.')
 
         print(data)
 

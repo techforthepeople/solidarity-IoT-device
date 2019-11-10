@@ -8,7 +8,7 @@ from sqlite3 import Error
 
 sense = SenseHat()
 
-db = 'webapp/sensor.db'
+db = 'sensor.db'
 
 def sleep(x):
     return time.sleep(x / 1000.0)

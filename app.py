@@ -6,9 +6,9 @@ from marshmallow import Schema, fields
 
 app = Flask(__name__)
 
-app.secret_key = '\xde\xb5W\xee{\x8b\xed\xb4\xf2\x91\xcdP\xdfM\xeb02\xd4\xc5\x90mh\xad*' #for dev only
+app.config.from_object("config.DevelopmentConfig")
 
-db = 'sensor.db'
+db = app.config["DB_NAME"]
 
 def create_connection(db):
     con = None
@@ -95,4 +95,4 @@ def update_settings():
 
       
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0')
